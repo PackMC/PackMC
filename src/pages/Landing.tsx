@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+//import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/animate-ui/components/buttons/button"
 import { Card } from "@/components/ui/aevr/card";
 import {
@@ -8,7 +8,7 @@ import {
 } from "@/components/icons";
 
 export default function Landing() {
-  const navigate = useNavigate();
+//  const navigate = useNavigate();
 
     return (
     <section className="min-h-screen flex flex-col justify-start items-center dark:text-white text-center px-6 pt-8">

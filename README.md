@@ -1,21 +1,43 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# PackMC
 
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
+**PackMC** is a modern Minecraft Pack Editor that lets you create **Resource Packs** directly in your browser. It’s built with a clean UI and a modern framework for fast, efficient workflows.
 
-## Deploy Your Own
+---
 
-Deploy your own Vite project with Vercel.
+## Features
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/vite-react&template=vite-react)
+- Create packs online — free and easy  
+- View unedited textures and sort them however you like  
+- Create an account to cloud-save your projects and work from anywhere  
+- Export your pack in the correct format instantly  
 
-_Live Example: https://vite-react-example.vercel.app_
+---
 
-### Deploying From Your Terminal
+## How to Use
 
-You can deploy your new Vite project with a single command from your terminal using [Vercel CLI](https://vercel.com/download):
+### Option 1: Use the Website
+Visit:  
+--> https://packmc.vercel.app  
 
-```shell
-$ vercel
-```
+---
+
+### Option 2: Download the App
+Download the prebuilt app from the **Releases** tab.
+
+---
+
+### Option 3: Run Locally
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Str-F/PackMC.git
+
+# 2. Go into the project folder
+cd packmc
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server
+npm run dev

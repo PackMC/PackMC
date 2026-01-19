@@ -17,8 +17,33 @@ export default function Layout() {
     };
 
   return (
-    <>
-        <footer className="text-gray-600 py-6 mt-12">
+    <section className="h-screen overflow-y-scroll
+                        [&::-webkit-scrollbar]:w-1
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        [&::-webkit-scrollbar-track]:bg-transparent
+                        [&::-webkit-scrollbar-track]:rounded-full
+                        scrollbar-thin
+                        scrollbar-thumb-rounded-full
+                        scrollbar-track-transparent
+                        scrollbar-track-rounded-full
+
+                        // Dark mode scrollbar
+                        dark:[&::-webkit-scrollbar-thumb]:bg-gradient-to-b
+                        dark:[&::-webkit-scrollbar-thumb]:from-primary
+                        dark:[&::-webkit-scrollbar-thumb]:to-primary/40
+                        dark:scrollbar-thumb-gradient-to-b
+                        dark:scrollbar-thumb-from-primary
+                        dark:scrollbar-thumb-to-primary/40
+
+                        // Light mode scrollbar
+                        [&::-webkit-scrollbar-thumb]:bg-gradient-to-b
+                        [&::-webkit-scrollbar-thumb]:from-neutral-600
+                        [&::-webkit-scrollbar-thumb]:to-neutral-400/40
+                        scrollbar-thumb-gradient-to-b
+                        scrollbar-thumb-from-primary
+                        scrollbar-thumb-to-primary/40
+                        ">
+        <footer className="text-gray-400 py-6 mt-12">
             <div className="fixed bottom-0 left-0 w-full flex justify-center items-center space-y-4 flex-col">
                 {/* Left: Copyright */}
                 <p className="text-sm">
@@ -34,6 +59,6 @@ export default function Layout() {
         <Outlet />   {/* renders the current page */}
         <SpeedInsights />
         <Analytics />
-    </>
+    </section>
   );
 }

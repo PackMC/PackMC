@@ -6,7 +6,8 @@ import { TimelineLayout } from "@/components/ui/timeline/timeline-layout"
 import {
     LayersIcon,
     SlidersHorizontalIcon,
-    DownloadIcon
+    DownloadIcon,
+    PackmcLogoIcon
 } from "@/components/icons";
 import { Check, GitBranch, GitPullRequest, Plus } from "lucide-react";
 import {
@@ -25,7 +26,7 @@ export default function Landing() {
     return (
     <section className="min-h-screen flex flex-col justify-start items-center dark:text-white text-center px-6 pt-8">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 leading-tight">
-                PackMC
+                <PackmcLogoIcon className="inline-block w-auto h-48" fill="currentColor" /> PackMC
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl max-w-3xl opacity-90 mt-4">
                 Create Minecraft texture & datapacks in your browser.

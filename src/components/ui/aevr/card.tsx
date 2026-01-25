@@ -12,6 +12,7 @@ export type CardVariant =
   | "default"
   | "primary"
   | "secondary"
+  | "login"
   | "success"
   | "warning"
   | "error"
@@ -53,6 +54,8 @@ const cardVariants = cva(
           "border-gray-200 bg-gray-50 text-gray-800 dark:border-primary/10 dark:bg-secondary dark:text-gray-200",
         secondary:
           "border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200",
+        login:
+          "border-blue-200 bg-black text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200",
         success:
           "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200",
         warning:
@@ -182,6 +185,8 @@ const cardIconVariants = cva("flex items-center justify-center rounded-2xl", {
       primary: "bg-primary/4 text-primary dark:bg-primary/4 dark:text-primary",
       secondary:
         "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
+      login:
+        "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
       success:
         "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
       warning:
@@ -439,6 +444,8 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           return "primary";
         case "secondary":
           return "secondary";
+        case "login":
+          return "login";
         case "tertiary":
           return "tertiary";
         case "ghost":

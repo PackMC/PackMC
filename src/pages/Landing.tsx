@@ -1,27 +1,27 @@
 //import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/animate-ui/components/buttons/button"
-import { Button as Buttonshadcn } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Card as Cardaevr } from "@/components/ui/aevr/card"
 import { TimelineLayout } from "@/components/ui/timeline/timeline-layout"
 import {
     LayersIcon,
     SlidersHorizontalIcon,
     DownloadIcon,
+    PlusIcon,
     PackmcLogoIcon
 } from "@/components/icons";
-import { Check, GitBranch, GitPullRequest, Plus } from "lucide-react";
+import { GitPullRequest } from "lucide-react";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card"
+import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
-//  const navigate = useNavigate();
+    const navigate = useNavigate();
 
     return (
     <section className="min-h-screen flex flex-col justify-start items-center dark:text-white text-center px-6 pt-8">
@@ -33,7 +33,7 @@ export default function Landing() {
             </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6">
                 <Button size="lg">Get started</Button>
-                <Button size="lg" variant="outline">Login</Button>
+                <Button size="lg" variant="outline" onClick={() => navigate("/auth")}>Login</Button>
             </div>
             <Button size="sm" className="mt-4 px-3 py-1 dark:text-white opacity-70 hover:opacity-100 transition-opacity" variant="link">Download PackMC Studio</Button>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16 mt-36 max-w-[100rem] w-full justify-items-center">
@@ -45,7 +45,6 @@ export default function Landing() {
                     variant="primary"
                     border="default"
                     hoverable={true}
-                    clickable={true}
                     size="xxl"
                     >
                     <p className="text-sm text-muted-foreground">
@@ -60,7 +59,6 @@ export default function Landing() {
                     variant="primary"
                     border="default"
                     hoverable={true}
-                    clickable={true}
                     size="xxl"
                     >
                     <p className="text-sm text-muted-foreground">
@@ -75,7 +73,6 @@ export default function Landing() {
                     variant="primary"
                     border="default"
                     hoverable={true}
-                    clickable={true}
                     size="xxl"
                     >
                     <p className="text-sm text-muted-foreground">
@@ -85,7 +82,7 @@ export default function Landing() {
             </div>
             <TimelineLayout
                 animate={true}
-                className="min-h-[600px] w-full max-w-2xl mx-auto p-8 flex items-center justify-center"
+                className="w-full max-w-[100rem] mx-auto mt-84 flex justify-center"
                 connectorColor="primary"
                 iconColor="primary"
                 size="lg"
@@ -93,26 +90,21 @@ export default function Landing() {
                     {
                         color: undefined,
                         date: (
-                                <span className="text-3xl font-bold text-primary">Step 4</span>
+                                <div><span className="text-5xl px-4">Step</span><span className="text-9xl font-bold text-primary">4</span></div>
                             ),
                         icon: <GitPullRequest />,
                         id: 1,
                         description: (
 
-                            <Card className="p-0 max-w-sm w-full mt-8">
+                            <Card className="p-0 w-full mt-8 bg-gradient-to-tr from-secondary to-primary/5 transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                 <CardHeader className="p-0 rounded-t-xl overflow-hidden">
                                     <img alt="Photo by mymind on Unsplash" title="Photo by mymind on Unsplash" className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale" src="https://images.unsplash.com/photo-1604076850742-4c7221f3101b?q=80&amp;w=1887&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"></img>
                                 </CardHeader>
                                 <CardContent className="text-left">
-                                    <CardTitle className="mb-2">Beautiful Landscape</CardTitle>
+                                    <CardTitle className="mb-2">Download and Play</CardTitle>
                                     <CardDescription>A stunning view that captures the essence of natural beauty.</CardDescription>
                                 </CardContent>
                                 <CardFooter className="pb-6">
-                                    <CardAction className="w-full">
-                                        <Buttonshadcn variant="default" className="text-secondary w-full">
-                                            <Plus /> Button
-                                        </Buttonshadcn>
-                                    </CardAction>
                                 </CardFooter>
                             </Card>
                             ),
@@ -121,52 +113,42 @@ export default function Landing() {
                         color: undefined,
                         date: (
 
-                            <Card className="p-0 max-w-sm w-full mt-8">
+                            <Card className="p-0 w-full mt-8 bg-gradient-to-tr from-primary/5 to-secondary transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                 <CardHeader className="p-0 rounded-t-xl overflow-hidden">
                                     <img alt="Photo by mymind on Unsplash" title="Photo by mymind on Unsplash" className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale" src="https://images.unsplash.com/photo-1604076850742-4c7221f3101b?q=80&amp;w=1887&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"></img>
                                 </CardHeader>
                                 <CardContent className="text-left">
-                                    <CardTitle className="mb-2">Beautiful Landscape</CardTitle>
+                                    <CardTitle className="mb-2">Preview Online</CardTitle>
                                     <CardDescription>A stunning view that captures the essence of natural beauty.</CardDescription>
                                 </CardContent>
                                 <CardFooter className="pb-6">
-                                    <CardAction className="w-full">
-                                        <Buttonshadcn variant="default" className="text-secondary w-full">
-                                            <Plus /> Button
-                                        </Buttonshadcn>
-                                    </CardAction>
                                 </CardFooter>
                             </Card>
                             ),
                         icon: <GitPullRequest />,
                         id: 1,
                         description: (
-                                <span className="text-3xl font-bold text-primary">Step 3</span>
+                                <div><span className="text-5xl px-4">Step</span><span className="text-9xl font-bold text-primary">3</span></div>
                             ),
                     },
                     {
                         color: undefined,
                         date: (
-                                <span className="text-3xl font-bold text-primary">Step 2</span>
+                                <div><span className="text-5xl px-4">Step</span><span className="text-9xl font-bold text-primary">2</span></div>
                             ),
                         icon: <GitPullRequest />,
                         id: 1,
                         description: (
 
-                            <Card className="p-0 max-w-sm w-full mt-8">
+                            <Card className="p-0 w-full mt-8 bg-gradient-to-tr from-secondary to-primary/5 transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                 <CardHeader className="p-0 rounded-t-xl overflow-hidden">
                                     <img alt="Photo by mymind on Unsplash" title="Photo by mymind on Unsplash" className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale" src="https://images.unsplash.com/photo-1604076850742-4c7221f3101b?q=80&amp;w=1887&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"></img>
                                 </CardHeader>
                                 <CardContent className="text-left">
-                                    <CardTitle className="mb-2">Beautiful Landscape</CardTitle>
+                                    <CardTitle className="mb-2">Draw your Textures</CardTitle>
                                     <CardDescription>A stunning view that captures the essence of natural beauty.</CardDescription>
                                 </CardContent>
                                 <CardFooter className="pb-6">
-                                    <CardAction className="w-full">
-                                        <Buttonshadcn variant="default" className="text-secondary w-full">
-                                            <Plus /> Button
-                                        </Buttonshadcn>
-                                    </CardAction>
                                 </CardFooter>
                             </Card>
                             ),
@@ -175,27 +157,22 @@ export default function Landing() {
                         color: undefined,
                         date: (
 
-                            <Card className="p-0 max-w-sm w-full mt-8">
+                            <Card className="p-0 w-full mt-8 bg-gradient-to-tr from-primary/5 to-secondary transition-transform duration-300 hover:-translate-y-2 hover:shadow-xl">
                                 <CardHeader className="p-0 rounded-t-xl overflow-hidden">
                                     <img alt="Photo by mymind on Unsplash" title="Photo by mymind on Unsplash" className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale" src="https://images.unsplash.com/photo-1604076850742-4c7221f3101b?q=80&amp;w=1887&amp;auto=format&amp;fit=crop&amp;ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"></img>
                                 </CardHeader>
                                 <CardContent className="text-left">
-                                    <CardTitle className="mb-2">Beautiful Landscape</CardTitle>
+                                    <CardTitle className="mb-2">Create a new Pack</CardTitle>
                                     <CardDescription>A stunning view that captures the essence of natural beauty.</CardDescription>
                                 </CardContent>
                                 <CardFooter className="pb-6">
-                                    <CardAction className="w-full">
-                                        <Buttonshadcn variant="default" className="text-secondary w-full">
-                                            <Plus /> Button
-                                        </Buttonshadcn>
-                                    </CardAction>
                                 </CardFooter>
                             </Card>
                             ),
-                        icon: <GitPullRequest />,
+                        icon: <PlusIcon />,
                         id: 1,
                         description: (
-                                <span className="text-3xl font-bold text-primary">Step 1</span>
+                                <div><span className="text-5xl px-4">Step</span><span className="text-9xl font-bold text-primary">1</span></div>
                             ),
                     }
                 ]}

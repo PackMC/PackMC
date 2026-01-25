@@ -51,7 +51,7 @@ const Timeline = React.forwardRef<HTMLOListElement, TimelineProps>(
         aria-label="Timeline"
         className={cn(
           timelineVariants({ size }),
-          'relative min-h-[600px] w-full max-w-2xl mx-auto py-8',
+          'relative min-h-[600px] w-full mx-auto py-8',
           className
         )}
         {...props}
@@ -207,12 +207,12 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
 
     const content = (
       <div
-        className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start"
+        className="grid grid-cols-[1fr_auto_1fr] gap-4 items-stretch"
         {...(status === 'in-progress' ? { 'aria-current': 'step' } : {})}
       >
         {/* Date */}
         <div className="flex flex-col justify-start pt-1">
-          <TimelineTime className="text-right pr-4">{date}</TimelineTime>
+          <TimelineTime className="text-right pr-4 -translate-y-1/2">{date}</TimelineTime>
         </div>
 
         {/* Timeline dot and connector */}
@@ -221,7 +221,7 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
             <TimelineIcon icon={icon} color={iconColor} status={status} iconSize={iconsize} />
           </div>
           {showConnector && (
-            <div className="h-16 w-0.5 bg-border mt-2" />
+            <div className="flex-1 w-0.5 bg-border mt-2" />
           )}
         </div>
 
@@ -230,7 +230,7 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
           <TimelineHeader>
             <TimelineTitle>{title}</TimelineTitle>
           </TimelineHeader>
-          <TimelineDescription>{description}</TimelineDescription>
+          <TimelineDescription className='text-left pr-4 -translate-y-1/2'>{description}</TimelineDescription>
         </TimelineContent>
       </div>
     );
@@ -368,7 +368,6 @@ TimelineTitle.displayName = 'TimelineTitle';
 const TimelineIcon = ({
   icon,
   color = 'primary',
-  status = 'completed',
   iconSize = 'md',
 }: {
   icon?: React.ReactNode;
@@ -378,13 +377,13 @@ const TimelineIcon = ({
 }) => {
   const sizeClasses = {
     sm: 'h-8 w-8',
-    md: 'h-10 w-10',
+    md: 'h-12 w-12',
     lg: 'h-12 w-12',
   };
 
   const iconSizeClasses = {
     sm: 'h-4 w-4',
-    md: 'h-5 w-5',
+    md: 'h-6 w-6',
     lg: 'h-6 w-6',
   };
 
@@ -419,7 +418,7 @@ const TimelineDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p ref={ref} className={cn('max-w-sm text-sm text-muted-foreground', className)} {...props} />
+  <p ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
 ));
 TimelineDescription.displayName = 'TimelineDescription';
 

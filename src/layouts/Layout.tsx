@@ -43,14 +43,6 @@ export default function Layout() {
                         scrollbar-thumb-from-primary
                         scrollbar-thumb-to-primary/40
                         ">
-        <footer className="text-gray-400 py-6 mt-12">
-            <div className="fixed bottom-0 left-0 w-full flex justify-center items-center space-y-4 flex-col">
-                {/* Left: Copyright */}
-                <p className="text-sm">
-                PackMC © {(new Date().getFullYear())}. All rights reserved.
-                </p>
-            </div>
-        </footer>
         <header className="fixed top-0 left-0 w-full flex justify-end items-center p-4 z-10">
             <Button variant="ghost" onClick={toggle}>
                 {dark ? <Sun size={18} /> : <Moon size={18} />}
@@ -59,6 +51,14 @@ export default function Layout() {
         <Outlet />   {/* renders the current page */}
         <SpeedInsights />
         <Analytics />
+        <footer className="text-gray-400 py-6 mt-12">
+            <div className="bottom-0 left-0 w-full flex justify-center items-center space-y-4 flex-col">
+                {/* Left: Copyright */}
+                <p className="text-sm">
+                PackMC © {(new Date().getFullYear())}. All rights reserved.
+                </p>
+            </div>
+        </footer>
     </section>
   );
 }

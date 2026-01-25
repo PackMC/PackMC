@@ -15,6 +15,8 @@ const buttonVariants = cva(
           "bg-blue-500 text-blue-50 hover:bg-blue-600 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-600",
         secondary:
           "border border-gray-300 bg-gray-50 text-gray-600 hover:bg-gray-100 focus:ring-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:focus:ring-gray-600",
+        login:
+          "bg-blue-500 text-blue-50 hover:bg-blue-600 focus:ring-blue-500 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-600",
         tertiary:
           "bg-blue-100 text-blue-600 hover:bg-blue-200 focus:ring-blue-500 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700 dark:focus:ring-blue-600",
         ghost:

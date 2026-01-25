@@ -20,6 +20,7 @@
   },
   "registries": {
     "@aevr": "https://ui.aevr.space/r/{name}.json",
-    "@animate-ui": "https://animate-ui.com/r/{name}.json"
+    "@animate-ui": "https://animate-ui.com/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json"
   }
 }

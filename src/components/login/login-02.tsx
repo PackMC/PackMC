@@ -41,14 +41,14 @@ export default function Login02() {
 
     try {
       const {
-        data: { session }, error } = await supabase.auth.verifyOtp({
+        data: error } = await supabase.auth.verifyOtp({
         email,
         token: code,
         type: 'email',
       })
 
       if (error) {
-        alert("Invalid code: " + error.message);
+        alert("Invalid code: " + error);
       } else {
         setShowCard(false);
         navigate("/dashboard");
@@ -75,13 +75,13 @@ export default function Login02() {
             className="flex items-center justify-center"
             title={
               <h2 className="text-center text-xl font-semibold text-foreground m-6">
-                Enter the Code sent to your Email
+                Enter verification code
               </h2>
             }
             subtitle={
               <form method="post" className="space-y-4 w-full" onSubmit={handleVerifyCode}>
                 <div>
-                  <Label>Code</Label>
+                  <Label>Verification code</Label>
                   <Input
                     type="text"
                     id="code-login-02"
@@ -100,7 +100,7 @@ export default function Login02() {
                   className="mb-6 w-full py-2 font-medium"
                   disabled={loading}
                 >
-                  {loading ? "Verifying..." : "Submit Code"}
+                  {loading ? "Verifying..." : "Verify"}
                 </Button>
               </form>
             }

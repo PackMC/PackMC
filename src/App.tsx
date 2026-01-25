@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './layouts/Layout.tsx'
 import Landing from './pages/Landing.tsx'
+import Dashboard from './pages/Dashboard.tsx'
 import Editor from './pages/Editor.tsx'
 import Auth from './pages/Auth.tsx'
 
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Landing />} />
           <Route path="auth" element={<Auth />} />
+          <Route path='dashboard' element={<Dashboard />} />
           <Route path="editor" element={<Editor />} />
         </Route>
       </Routes>

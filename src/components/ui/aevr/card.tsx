@@ -19,7 +19,7 @@ export type CardVariant =
   | "info"
   | "glass";
 
-export type CardSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
+export type CardSize = "login" | "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
 
 export type CardElevation = "flat" | "raised" | "floating" | "elevated";
 
@@ -55,7 +55,7 @@ const cardVariants = cva(
         secondary:
           "border-gray-200 bg-gray-50 text-gray-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200",
         login:
-          "border-blue-200 bg-black text-blue-800 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200",
+          "border-secondary bg-background text-foreground dark:border-secondary dark:bg-background dark:text-foreground",
         success:
           "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-200",
         warning:
@@ -67,6 +67,7 @@ const cardVariants = cva(
           "border-white/20 bg-white/10 text-gray-800 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-900/10 dark:text-gray-200",
       },
       size: {
+        login : "",
         xs: "p-3 text-sm",
         sm: "p-4 text-sm",
         md: "p-6 text-base",
@@ -153,6 +154,7 @@ const cardTitleVariants = cva("font-semibold leading-tight", {
       lg: "text-xl font-bold",
       xl: "text-2xl font-bold",
       xxl: "text-3xl font-extrabold",
+      login: "",
     },
   },
   defaultVariants: {
@@ -164,6 +166,7 @@ const cardTitleVariants = cva("font-semibold leading-tight", {
 const cardSubtitleVariants = cva("opacity-75", {
   variants: {
     size: {
+      login: "opacity-100",
       xs: "text-xs",
       sm: "text-sm",
       md: "text-sm",
@@ -196,6 +199,7 @@ const cardIconVariants = cva("flex items-center justify-center rounded-2xl", {
       glass: "bg-white/20 text-gray-600 dark:bg-gray-700/20 dark:text-gray-400",
     },
     size: {
+      login: "",
       xs: "h-6 w-6 rounded-lg",
       sm: "h-8 w-8 rounded-xl",
       md: "h-12 w-12",
@@ -624,7 +628,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
 
         {/* Media for horizontal layout */}
         {media && horizontal && (
-          <div className={cardMediaVariants({ horizontal: true, size })}>
+          <div className={cardMediaVariants({ horizontal: true, size: size === "login" ? "md" : size })}>
             {typeof media === "string" ? (
               <img src={media} alt="" className="h-full w-full object-cover" />
             ) : (

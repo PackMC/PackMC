@@ -1,4 +1,4 @@
-//import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card as Cardaevr } from "@/components/ui/aevr/card"
 import { TimelineLayout } from "@/components/ui/timeline/timeline-layout"
@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card"
-import { useNavigate } from "react-router-dom";
 
 export default function Landing() {
     const navigate = useNavigate();

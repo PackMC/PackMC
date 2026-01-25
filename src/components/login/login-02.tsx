@@ -7,10 +7,15 @@ import { Label } from "@/components/login/components/label";
 import { Separator } from "@/components/login/components/separator";
 import { Card as Cardaevr } from "@/components/ui/aevr/card"
 import { GithubIcon } from "@/components/icons";
+import { useNavigate } from "react-router-dom";
 
 export default function Login02() {
+    const navigate = useNavigate();
+  
     const [email, setEmail] = useState("");
+    const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
+    const [showCard, setShowCard] = useState(false);
 
   // Email OTP login
     const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,37 +25,93 @@ export default function Login02() {
       const { error } = await supabase.auth.signInWithOtp({ email });
       
       if (error) {
-        alert("Error sending magic link: " + error.message);
+        console.log("Error sending OTP: " + error.message);
       } else {
-        alert("Check your email for the login link!");
+        setShowCard(true);
       }
 
         setLoading(false);
   };
 
 
+  // OTP Code verification
+  const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const {
+        data: { session }, error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: 'email',
+      })
+
+      if (error) {
+        alert("Invalid code: " + error.message);
+      } else {
+        setShowCard(false);
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.log("Error verifying OTP: " + error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div>
-        <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-10 bg-black/80">
-          <div className="pointer-events-auto">
-            <Cardaevr
-              className="flex justify-center items-center max-w-100 max-h-100 p-6 mb-6"
-              icon={<GithubIcon size={32} />}
-              title="Instant Texture Creation"
-              subtitle="Design Minecraft textures fast"
-              variant="login"
-              border="default"
-              hoverable={true}
-              size="xxl"
-            >
-              <p className="text-sm text-muted-foreground">
-          Create custom Minecraft textures right in your browser — no downloads, no setup. Start designing in seconds!
-              </p>
-            </Cardaevr>
-          </div>
+    {showCard && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+        onClick={() => setShowCard(false)} // click outside closes
+      >
+        <div
+          className="max-w-100 w-full"
+          onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+        >
+          <Cardaevr
+            className="flex items-center justify-center"
+            title={
+              <h2 className="text-center text-xl font-semibold text-foreground m-6">
+                Enter the Code sent to your Email
+              </h2>
+            }
+            subtitle={
+              <form method="post" className="space-y-4 w-full" onSubmit={handleVerifyCode}>
+                <div>
+                  <Label>Code</Label>
+                  <Input
+                    type="text"
+                    id="code-login-02"
+                    name="code-login-02"
+                    autoComplete="one-time-code"
+                    placeholder="Enter your code"
+                    className="mt-2"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  variant="default"
+                  className="mb-6 w-full py-2 font-medium"
+                  disabled={loading}
+                >
+                  {loading ? "Verifying..." : "Submit Code"}
+                </Button>
+              </form>
+            }
+            variant="login"
+            border="default"
+            hoverable={false}
+            size="login"
+          />
         </div>
       </div>
+    )}
       <div className="flex flex-1 flex-col justify-center px-4 py-10 lg:px-6">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="text-center text-xl font-semibold text-foreground">
@@ -80,7 +141,6 @@ export default function Login02() {
               {loading ? "Sending OTP..." : "Sign in"}
             </Button>
           </form>
-
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <Separator className="w-full" />

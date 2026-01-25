@@ -23,7 +23,7 @@ export default function Landing() {
     const navigate = useNavigate();
 
     return (
-    <section className="min-h-screen flex flex-col justify-start items-center dark:text-white text-center px-6 pt-8">
+    <section className="min-h-screen flex flex-col justify-start items-center text-primary dark:text-primary text-center px-6 pt-8">
             <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-4 leading-tight">
                 <PackmcLogoIcon className="inline-block w-auto h-48" fill="currentColor" /> PackMC
             </h1>

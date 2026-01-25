@@ -16,6 +16,8 @@ export default function Login02() {
     const [code, setCode] = useState("");
     const [loading, setLoading] = useState(false);
     const [showCard, setShowCard] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [otperrorMessage, setOtperrorMessage] = useState("");
 
   // Email OTP login
     const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -25,7 +27,7 @@ export default function Login02() {
       const { error } = await supabase.auth.signInWithOtp({ email });
       
       if (error) {
-        console.log("Error sending OTP: " + error.message);
+        setErrorMessage("Error sending OTP: " + error.message);
       } else {
         setShowCard(true);
       }
@@ -40,21 +42,20 @@ export default function Login02() {
     setLoading(true);
 
     try {
-      const {
-        data: error } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         email,
         token: code,
         type: 'email',
       })
 
       if (error) {
-        alert("Invalid code: " + error);
+        setOtperrorMessage("Error verifying code: " + error.message);
       } else {
         setShowCard(false);
         navigate("/dashboard");
       }
     } catch (error) {
-      console.log("Error verifying OTP: " + error);
+      setOtperrorMessage("Error sending verify request to server: " + error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +66,6 @@ export default function Login02() {
     {showCard && (
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        onClick={() => setShowCard(false)} // click outside closes
       >
         <div
           className="max-w-100 w-full"
@@ -94,6 +94,7 @@ export default function Login02() {
                     required
                   />
                 </div>
+                <p className="mt-2 text-xs text-red-300">{otperrorMessage}</p>                
                 <Button
                   type="submit"
                   variant="default"
@@ -102,6 +103,7 @@ export default function Login02() {
                 >
                   {loading ? "Verifying..." : "Verify"}
                 </Button>
+                
               </form>
             }
             variant="login"
@@ -136,6 +138,7 @@ export default function Login02() {
               onChange={(e) => setEmail(e.target.value)}
               required
               />
+              <p className="mt-2 text-xs text-red-300">{errorMessage}</p>
             </div>
             <Button type="submit" className="mt-4 w-full py-2 font-medium" disabled={loading}>
               {loading ? "Sending OTP..." : "Sign in"}

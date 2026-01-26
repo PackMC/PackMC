@@ -9,4 +9,5 @@ export { SunMediumIcon } from './sun-medium';
 export { MoonIcon } from './moon';
 export { PlusIcon } from './plus';
 export { GithubIcon } from './github';
+export { HomeIcon } from './home';
 export { PackmcLogoIcon };

@@ -10,4 +10,6 @@ export { MoonIcon } from './moon';
 export { PlusIcon } from './plus';
 export { GithubIcon } from './github';
 export { HomeIcon } from './home';
+export { LogoutIcon } from './logout';
+export { UserIcon } from './user';
 export { PackmcLogoIcon };

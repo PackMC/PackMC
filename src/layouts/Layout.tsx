@@ -11,7 +11,7 @@ import {
 export default function Layout() {
   const [dark, setDark] = useState(false);
   const location = useLocation();
-  const isLanding = location.pathname === "/";
+  const isLanding = location.pathname === "/" || location.pathname === "/auth";
 
   const toggle = () => {
     document.documentElement.classList.toggle("dark");
@@ -43,7 +43,7 @@ export default function Layout() {
     ">
 
         {isLanding && (
-            <div className="fixed bottom-5 right-5 z-50 opacity-40 hover:opacity-100 transition backdrop-blur-sm bg-black/20 rounded-full">
+            <div className="fixed bottom-5 right-5 z-50 opacity-40 hover:opacity-100 transition backdrop-blur-sm rounded-full">
             <Button variant="ghost" size="icon" onClick={toggle}>
                 {dark ? <Sun size={18} /> : <Moon size={18} />}
             </Button>

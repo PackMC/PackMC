@@ -20,22 +20,17 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
+
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from "react-router-dom";
 
-export default function Navbar({ ButtonText, RootText, RootLink, RootIcon, Path, userEmail }: { ButtonText?: string , RootText?: string, RootLink?: string, RootIcon?: React.ReactNode, Path?: string, userEmail?: string}) {
+export default function Navbar({ ButtonText, ButtonAction, ButtonActionType, RootText, RootLink, RootIcon, Path, userEmail }: { ButtonText?: string, ButtonAction?: string | (() => void), ButtonActionType?: "navigate" | "function", RootText?: string, RootLink?: string, RootIcon?: React.ReactNode, Path?: string, userEmail?: string}) {
     const [dark, setDark] = useState(false);
     const parts = Path?.split("/").filter(Boolean) ?? [];
     const username = userEmail?.split("@")[0] ?? "User";
@@ -52,7 +47,7 @@ export default function Navbar({ ButtonText, RootText, RootLink, RootIcon, Path,
     };
 
     return (
-        <div className="fixed top-4 left-4 right-4 bg-secondary/50 p-4 rounded-md flex items-center">
+        <div className="sticky top-4 z-50 mx-4 bg-secondary/50 p-4 rounded-md flex items-center">
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
@@ -61,13 +56,13 @@ export default function Navbar({ ButtonText, RootText, RootLink, RootIcon, Path,
                     </BreadcrumbItem>
 
                     {parts.map((part) => {
-                            return (
-                                <BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbPage>{part}</BreadcrumbPage>
-                                </BreadcrumbItem>
-                            );
-                        })}
+                        return (
+                            <BreadcrumbItem>
+                                <BreadcrumbSeparator />
+                                <BreadcrumbPage>{part}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        );
+                    })}
 
                 </BreadcrumbList>
             </Breadcrumb>
@@ -95,7 +90,15 @@ export default function Navbar({ ButtonText, RootText, RootLink, RootIcon, Path,
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <div>
-                    <Button size="sm">{ButtonText}</Button>
+                    <Button size="sm" onClick={() => {
+                        if (ButtonActionType === "navigate") {
+                            navigate(ButtonAction as string ?? "/");
+                        } else if (ButtonActionType === "function") {
+                            (ButtonAction as (() => void))();
+                        } else {
+                            navigate(ButtonAction as string ?? "/");
+                        }}
+                    }>{ButtonText}</Button>
                 </div>
             </div>
         </div>

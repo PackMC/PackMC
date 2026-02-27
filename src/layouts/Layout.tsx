@@ -12,6 +12,7 @@ export default function Layout() {
   const [dark, setDark] = useState(false);
   const location = useLocation();
   const isLanding = location.pathname === "/" || location.pathname === "/auth";
+  const isEditor = location.pathname === "/editor";
 
   const toggle = () => {
     document.documentElement.classList.toggle("dark");
@@ -28,13 +29,13 @@ export default function Layout() {
       scrollbar-thumb-rounded-full
       scrollbar-track-transparent
       scrollbar-track-rounded-full
-      dark:[&::-webkit-scrollbar-thumb]:bg-gradient-to-b
+      dark:[&::-webkit-scrollbar-thumb]:bg-linear-to-b
       dark:[&::-webkit-scrollbar-thumb]:from-primary
       dark:[&::-webkit-scrollbar-thumb]:to-primary/40
       dark:scrollbar-thumb-gradient-to-b
       dark:scrollbar-thumb-from-primary
       dark:scrollbar-thumb-to-primary/40
-      [&::-webkit-scrollbar-thumb]:bg-gradient-to-b
+      [&::-webkit-scrollbar-thumb]:bg-linear-to-b
       [&::-webkit-scrollbar-thumb]:from-neutral-600
       [&::-webkit-scrollbar-thumb]:to-neutral-400/40
       scrollbar-thumb-gradient-to-b
@@ -54,13 +55,15 @@ export default function Layout() {
         <SpeedInsights />
         <Analytics />
 
-        <footer className="text-gray-400 py-6 mt-12">
-        <div className="bottom-0 left-0 w-full flex justify-center items-center space-y-4 flex-col">
-            <p className="text-sm">
-            PackMC © {new Date().getFullYear()}. All rights reserved.
-            </p>
-        </div>
-        </footer>
+        {!isEditor && (
+          <footer className="text-gray-400 py-6 mt-12">
+          <div className="bottom-0 left-0 w-full flex justify-center items-center space-y-4 flex-col">
+              <p className="text-sm">
+              PackMC © {new Date().getFullYear()}. All rights reserved.
+              </p>
+          </div>
+          </footer>
+        )}
     </section>
   );
 }

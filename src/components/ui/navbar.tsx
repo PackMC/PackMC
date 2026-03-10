@@ -68,13 +68,13 @@ export default function Navbar({ ButtonText, ButtonAction, ButtonActionType, Roo
             </Breadcrumb>
             <div className="ml-auto flex items-center gap-2">
                 <div className="opacity-70 hover:opacity-100 transition backdrop-blur-sm rounded-full">
-                    <Button variant="ghost" size="icon" onClick={toggle}>
+                    <Button variant="ghost" className='cursor-pointer' size="icon" onClick={toggle}>
                         {dark ? <SunIcon size={18} /> : <MoonIcon size={18} />}
                     </Button>
                 </div>
                 <DropdownMenu>
                     <DropdownMenuTrigger>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" className="cursor-pointer"  size="icon">
                             <UserIcon size={18} className='opacity-70 hover:opacity-100 transition backdrop-blur-sm rounded-full'/>
                         </Button>
                     </DropdownMenuTrigger>
@@ -83,14 +83,14 @@ export default function Navbar({ ButtonText, ButtonAction, ButtonActionType, Roo
                             {username}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator /> 
-                        <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                        <DropdownMenuItem variant="destructive" className='cursor-pointer' onClick={handleLogout}>
                             <LogOutIcon />
                             Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <div>
-                    <Button size="sm" onClick={() => {
+                    <Button size="sm" className="cursor-pointer" onClick={() => {
                         if (ButtonActionType === "navigate") {
                             navigate(ButtonAction as string ?? "/");
                         } else if (ButtonActionType === "function") {

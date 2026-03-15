@@ -514,7 +514,7 @@ function ColorPicker(props: ColorPickerProps) {
   const listenersRef = useLazyRef(() => new Set<() => void>());
   const stateRef = useLazyRef<StoreState>(() => {
     const colorString = valueProp ?? defaultValue;
-    const color = hexToRgb(colorString);
+    const color = parseColorString(colorString) ?? hexToRgb(colorString);
 
     return {
       color,
@@ -533,15 +533,15 @@ function ColorPicker(props: ColorPickerProps) {
   const store = React.useMemo<Store>(() => {
     return {
       subscribe: (cb) => {
-        listenersRef.current.add(cb);
-        return () => listenersRef.current.delete(cb);
+        listenersRef.current!.add(cb);
+        return () => listenersRef.current!.delete(cb);
       },
-      getState: () => stateRef.current,
+      getState: () => stateRef.current!,
       setColor: (value: ColorValue) => {
-        if (Object.is(stateRef.current.color, value)) return;
+        if (Object.is(stateRef.current!.color, value)) return;
 
         const prevState = { ...stateRef.current };
-        stateRef.current.color = value;
+        stateRef.current!.color = value;
 
         if (propsRef.current.onValueChange) {
           const colorString = colorToString(value, prevState.format);
@@ -551,10 +551,10 @@ function ColorPicker(props: ColorPickerProps) {
         store.notify();
       },
       setHsv: (value: HSVColorValue) => {
-        if (Object.is(stateRef.current.hsv, value)) return;
+        if (Object.is(stateRef.current!.hsv, value)) return;
 
         const prevState = { ...stateRef.current };
-        stateRef.current.hsv = value;
+        stateRef.current!.hsv = value;
 
         if (propsRef.current.onValueChange) {
           const colorValue = hsvToRgb(value);
@@ -565,9 +565,9 @@ function ColorPicker(props: ColorPickerProps) {
         store.notify();
       },
       setOpen: (value: boolean) => {
-        if (Object.is(stateRef.current.open, value)) return;
+        if (Object.is(stateRef.current!.open, value)) return;
 
-        stateRef.current.open = value;
+        stateRef.current!.open = value;
 
         if (propsRef.current.onOpenChange) {
           propsRef.current.onOpenChange(value);
@@ -576,9 +576,9 @@ function ColorPicker(props: ColorPickerProps) {
         store.notify();
       },
       setFormat: (value: ColorFormat) => {
-        if (Object.is(stateRef.current.format, value)) return;
+        if (Object.is(stateRef.current!.format, value)) return;
 
-        stateRef.current.format = value;
+        stateRef.current!.format = value;
 
         if (propsRef.current.onFormatChange) {
           propsRef.current.onFormatChange(value);
@@ -587,7 +587,7 @@ function ColorPicker(props: ColorPickerProps) {
         store.notify();
       },
       notify: () => {
-        for (const cb of listenersRef.current) {
+        for (const cb of listenersRef.current!) {
           cb();
         }
       },
@@ -646,7 +646,10 @@ function ColorPickerImpl(props: ColorPickerImplProps) {
   const [formTrigger, setFormTrigger] = React.useState<RootElement | null>(
     null,
   );
-  const composedRef = useComposedRefs(ref, (node) => setFormTrigger(node));
+  const composedRef = useComposedRefs(
+    ref as React.Ref<HTMLDivElement> | undefined,
+    (node) => setFormTrigger(node),
+  );
   const isFormControl = formTrigger ? !!formTrigger.closest("form") : true;
 
   useIsomorphicLayoutEffect(() => {
@@ -757,7 +760,7 @@ function ColorPickerContent(
       <ContentPrimitive
         data-slot="color-picker-content"
         {...popoverContentProps}
-        className={cn("flex w-[340px] flex-col gap-4 p-4", className)}
+        className={cn("flex w-85 flex-col gap-4 p-4", className)}
       >
         {children}
       </ContentPrimitive>
@@ -769,7 +772,7 @@ function ColorPickerContent(
       data-slot="color-picker-content"
       asChild={asChild}
       {...popoverContentProps}
-      className={cn("flex w-[340px] flex-col gap-4 p-4", className)}
+      className={cn("flex w-85 flex-col gap-4 p-4", className)}
     >
       {children}
     </PopoverContent>
@@ -800,7 +803,10 @@ function ColorPickerArea(props: DivProps) {
 
   const isDraggingRef = React.useRef(false);
   const areaRef = React.useRef<HTMLDivElement>(null);
-  const composedRef = useComposedRefs(ref, areaRef);
+  const composedRef = useComposedRefs(
+    ref as React.Ref<HTMLDivElement> | undefined,
+    areaRef,
+  );
 
   const updateColorFromPosition = React.useCallback(
     (clientX: number, clientY: number) => {

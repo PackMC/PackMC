@@ -3,6 +3,9 @@ import { supabase } from "@/lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 
 import Navbar from "@/components/ui/navbar";
+import TextureCards from "@/components/ui/texturecards/TextureCards";
+
+import textures from "@/data/minecraft_textures_index.json";
 
 import {
   HomeIcon,
@@ -25,10 +28,10 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <section>
+        <section className="fixed top-0 left-0 w-full h-screen bg-background flex flex-col">
             <Navbar ButtonText="Export Pack" RootText="Dashboard" RootLink="/dashboard" RootIcon={<HomeIcon size={18}/>} userEmail={userEmail} />
-            <div className="min-h-screen flex flex-col items-center justify-center p-6">
-                <h1 className="text-2xl font-bold mb-4">Welcome to your Dashboard!</h1>
+            <div className="w-full overflow-hidden p-4 pt-8">
+                <TextureCards textures={textures} />
             </div>
         </section>
     );

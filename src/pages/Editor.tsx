@@ -1,13 +1,20 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { LayersIcon } from "@/components/icons";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import Navbar from "@/components/ui/navbar"
-import { Circle, Eraser, Eye, EyeOff, Minus, PaintBucket, Pen, Plus, Redo, Slash, Square, Undo } from "lucide-react";
-import { ColorPicker, ColorPickerAlphaSlider, ColorPickerArea, ColorPickerContent, ColorPickerEyeDropper, ColorPickerFormatSelect, ColorPickerHueSlider, ColorPickerInput, ColorPickerTrigger } from "@/components/ui/color-picker";
+import { Circle, Eraser, Eye, EyeOff, PaintBucket, Pen, Plus, Redo, Slash, Square, Undo } from "lucide-react";
+import {
+  ColorPicker,
+  ColorPickerAlphaSlider,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerEyeDropper,
+  ColorPickerFormatSelect,
+  ColorPickerHueSlider,
+  ColorPickerInput,
+  ColorPickerTrigger,
+} from "@/components/ui/color-picker";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 
 const makeEmptyGrid = (rows: number, cols: number) =>
@@ -27,7 +34,6 @@ export default function Editor() {
         JSON.parse(localStorage.getItem("packmc_textures") || "{}")[path] ?? null
     , [path]);
 
-    const [userEmail, setUserEmail] = useState<string | undefined>(undefined);
     const [isDrawing, setIsDrawing] = useState(false);
     const [selectedTool, setSelectedTool] = useState<string>("pen");
     const [selectedColor, setSelectedColor] = useState<string>("#f4f4f4");
@@ -38,6 +44,8 @@ export default function Editor() {
     const [previewEnd, setPreviewEnd] = useState<{ col: number; row: number } | null>(null);
     const [zoom, setZoom] = useState(1);
     const [showBackground, setShowBackground] = useState(true);
+    const [mouseX, setMouseX] = useState(0);
+    const [mouseY, setMouseY] = useState(0);
 
     const MAX_WIDTH = 712;
     const MAX_HEIGHT = 712;
@@ -53,32 +61,27 @@ export default function Editor() {
         setSelectedColor(customColor);
     }
     
-    const initialGrid = useMemo(() => makeEmptyGrid(gridRows, gridCols), []);
+    const initialGrid = useMemo(() => makeEmptyGrid(gridRows, gridCols), [gridRows, gridCols]);
     const history = useRef<string[][][]>([initialGrid]);
     const [pixels, setPixels] = useState<string[][]>(initialGrid);
 
     const pixelsRef = useRef<string[][]>(initialGrid);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const didDrawRef = useRef(false);
+    const didDrawRef = useRef<boolean>(false);
+    const selectedColorRef = useRef(selectedColor);
 
     useEffect(() => {
-        // Get the logged-in user
-        supabase.auth.getSession().then(({ data }) => {
-            if (data.session?.user?.email) {
-                setUserEmail(data.session.user.email);
-            } else {
-                navigate("/auth");
-            }
-        });
-    }, []);
-
-    useEffect(() => {
+        selectedColorRef.current = selectedColor;
         const handleMouseUp = () => {
             setIsDrawing(false);
-            if (didDrawRef.current) {
+
+            const isShapeTool = selectedTool === "square" || selectedTool === "circle" || selectedTool === "line";
+
+            if (!isShapeTool && didDrawRef.current) {
                 saveHistory(pixelsRef.current);
                 didDrawRef.current = false;
             }
+
             if (isShapeDragging) {
                 if (selectedTool === "square") {
                     drawSquare(shapeStart, previewEnd, pixelsRef.current);
@@ -87,16 +90,16 @@ export default function Editor() {
                 } else if (selectedTool === "line") {
                     drawLine(shapeStart, previewEnd, pixelsRef.current);
                 }
+                setIsShapeDragging(false);
                 setShapeStart(null);
                 setPreviewEnd(null);
-                setIsShapeDragging(false);
             }
         };
         window.addEventListener("mouseup", handleMouseUp);
         return () => {
             window.removeEventListener("mouseup", handleMouseUp);
         }
-    }, [selectedTool, isShapeDragging, shapeStart, previewEnd]);
+    }, [selectedTool, selectedColor, isShapeDragging, shapeStart, previewEnd]);
 
     useEffect(() => {
 
@@ -129,7 +132,7 @@ export default function Editor() {
                 const maxX = Math.max(shapeStart.col, previewEnd.col);
                 const minY = Math.min(shapeStart.row, previewEnd.row);
                 const maxY = Math.max(shapeStart.row, previewEnd.row);
-                ctx.fillStyle = selectedColor + "88"; // semi-transparent for preview
+                ctx.fillStyle = selectedColorRef.current + "88"; // semi-transparent for preview
                 for (let x = minX; x <= maxX; x++) {
                     for (let y = minY; y <= maxY; y++) {
                         if (x === minX || x === maxX || y === minY || y === maxY) {
@@ -150,7 +153,7 @@ export default function Editor() {
                     for (let y = 0; y < gridRows; y++) {
                         const dist = Math.sqrt(Math.pow(x - centerCol, 2) + Math.pow(y - centerRow, 2));
                         if (Math.abs(dist - radius) < 0.5) { // simple circle approximation
-                            ctx.fillStyle = selectedColor + "88"; // semi-transparent for preview
+                            ctx.fillStyle = selectedColorRef.current + "88"; // semi-transparent for preview
                             ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                         }
                     }
@@ -170,7 +173,7 @@ export default function Editor() {
                 let x = x1;
                 let y = y1;
 
-                ctx.fillStyle = selectedColor + "88"; // semi-transparent for preview
+                ctx.fillStyle = selectedColorRef.current + "88"; // semi-transparent for preview
                 while (true) {
                     ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                     if (x === x2 && y === y2) break;
@@ -186,7 +189,7 @@ export default function Editor() {
                 }
             }
         }
-    }, [pixels, shapeStart, previewEnd, selectedTool, selectedColor]);
+    }, [pixels, shapeStart, previewEnd, selectedTool, selectedColor, showBackground]);
 
     const undo = useCallback(() => {
         if (historyIndex.current > 0) {
@@ -238,7 +241,7 @@ export default function Editor() {
         // update pixel array
         if (selectedTool === "pen") {
             const newPixels = pixelsRef.current.map((r) => r.slice());
-            newPixels[clampedRow][clampedCol] = selectedColor; // change to selected color on click
+            newPixels[clampedRow][clampedCol] = selectedColorRef.current; // change to selected color on click
             setPixels(newPixels);
             pixelsRef.current = newPixels;
             didDrawRef.current = true;
@@ -250,7 +253,7 @@ export default function Editor() {
             didDrawRef.current = true;
         } else if (selectedTool === "fill") {
             const targetColor = pixelsRef.current[clampedRow][clampedCol];
-            const replacementColor = selectedColor;
+            const replacementColor = selectedColorRef.current;
             floodFill(clampedCol, clampedRow, targetColor, replacementColor);
             return;
         }
@@ -310,7 +313,7 @@ export default function Editor() {
         for (let r = minRow; r <= maxRow; r++) {
             for (let c = minCol; c <= maxCol; c++) {
                 if (r === minRow || r === maxRow || c === minCol || c === maxCol) {
-                    newPixels[r][c] = selectedColor; // change to selected color on click
+                    newPixels[r][c] = selectedColorRef.current; // change to selected color on click
                 }
             }
         }
@@ -329,7 +332,7 @@ export default function Editor() {
             for (let c = 0; c < gridCols; c++) {
                 const dist = Math.sqrt(Math.pow(c - centerCol, 2) + Math.pow(r - centerRow, 2));
                 if (Math.abs(dist - radius) < 0.5) { // simple circle approximation
-                    newPixels[r][c] = selectedColor; // change to selected color on click
+                    newPixels[r][c] = selectedColorRef.current; // change to selected color on click
                 }
             }                    
         }
@@ -356,7 +359,7 @@ export default function Editor() {
         let y = y1;
 
         while (true) {
-            newPixels[y][x] = selectedColor;
+            newPixels[y][x] = selectedColorRef.current;
             if (x === x2 && y === y2) break;
             const err2 = err * 2;
             if (err2 > -dy) {
@@ -400,13 +403,20 @@ export default function Editor() {
             setShapeStart(pos);
             setPreviewEnd(pos);
             setIsShapeDragging(true);
+        } else {
+            handleCanvasClick(event);
         }
     }
 
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const pos = getCanvasCoordinates(event);
+        if (pos) {
+            setMouseX(pos.col);
+            setMouseY(pos.row);
+        }
+
         if (isShapeDragging) {
-            const pos = getCanvasCoordinates(event);
             if (!pos) return;
             setPreviewEnd(pos);
             return;
@@ -459,118 +469,104 @@ export default function Editor() {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen">
-            <Navbar ButtonText="Save" ButtonAction={saveTexture} ButtonActionType="function" RootText="Editor" RootLink="/dashboard" Path={path} RootIcon={<LayersIcon size={18}/>} userEmail={userEmail} />
-            <div className="flex flex-1 overflow-hidden">
-                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 flex flex-col bg-secondary/50 rounded-md space-y-2 p-1">
-                    <ToggleGroup type="single" orientation="vertical" spacing={1} value={selectedTool} onValueChange={setSelectedTool} className="flex flex-col">
-                        <ToggleGroupItem value="pen" className=" cursor-pointer">
-                            <Pen size={18} />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="eraser" className=" cursor-pointer">
-                            <Eraser size={18} />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="fill" className=" cursor-pointer">
-                            <PaintBucket size={18} />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="square" className=" cursor-pointer">
-                            <Square size={18} />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="circle" className=" cursor-pointer">
-                            <Circle size={18} />
-                        </ToggleGroupItem>
-                        <ToggleGroupItem value="line" className=" cursor-pointer">
-                            <Slash size={18} />
-                        </ToggleGroupItem>
-                    </ToggleGroup>
-                </div>
-                <div className="absolute left-4 bottom-4 flex bg-secondary/50 rounded-md p-1 gap-2">
-                        <Button onClick={undo} size="sm" variant="ghost"><Undo /></Button>
-                        <Button onClick={redo} size="sm" variant="ghost"><Redo /> </Button>
-                </div>
-                <div className="absolute right-4 bottom-4 flex bg-secondary/50 rounded-md p-1 gap-2">
-                        <Button onClick={() => setZoom((z) => Math.min(1.2, z + 0.1))} size="sm" variant="ghost"><Plus /></Button>
-                        <span className="text-xs self-center text-muted-foreground w-10 text-center">{Math.round(zoom * 100)}%</span>
-                        <Button onClick={() => setZoom((z) => Math.max(z - 0.1, 0.5))} size="sm" variant="ghost"><Minus /> </Button>
-                </div>
-                <div className="absolute left-28 bottom-4 flex bg-secondary/50 rounded-md p-1 gap-2">
-                    <Button onClick={() => setShowBackground(!showBackground)} size="sm" variant="ghost">
-                        {showBackground ? <Eye /> : <EyeOff />}
-                    </Button>
-                </div>
-                <div className="flex-1 flex items-center justify-center">
-                    <div
-                        className="relative"
-                        style={{
-                            width: pixelSize * gridCols,
-                            height: pixelSize * gridRows,
-                            transform: `scale(${zoom})`,
-                            transformOrigin: `center center`
-                        }}
-                    >
-                        <canvas
-                            ref={canvasRef}
-                            width={pixelSize * gridCols}
-                            height={pixelSize * gridRows}
-                            className="border cursor-crosshair"
-                            onClick={handleCanvasClick}
-                            onMouseDown={handleMouseDown}
-                            onMouseMove={handleMouseMove}
-                            style={{ background: "transparent" }}
-                        />
-                        {showBackground && (
-                            <img
-                                src={`https://assets.mcasset.cloud/latest/assets/minecraft/textures/${path}`}
-                                alt="texture reference"
-                                className="absolute w-full h-full object-cover opacity-30 pointer-events-none"
-                                style={{ 
-                                    imageRendering: `pixelated`,
-                                    top: 0,
-                                    left: 0,
-                                    zIndex: -1,
-                                    width: '100%',
-                                    height: '100%',
-                                }}
-                                draggable={false}
-                            />
-                        )}
-                    </div>
-                </div>
-                <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col bg-secondary/50 rounded-md p-2 gap-2 h-160">
-                    <div className="pr-2 pl-3 overflow-y-auto flex flex-col items-center flex-1 min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-track]:rounded-full scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-transparent scrollbar-track-rounded-full dark:[&::-webkit-scrollbar-thumb]:bg-linear-to-b dark:[&::-webkit-scrollbar-thumb]:from-primary dark:[&::-webkit-scrollbar-thumb]:to-primary/40 dark:scrollbar-thumb-gradient-to-b dark:scrollbar-thumb-from-primary dark:scrollbar-thumb-to-primary/40 [&::-webkit-scrollbar-thumb]:bg-linear-to-b [&::-webkit-scrollbar-thumb]:from-neutral-600 [&::-webkit-scrollbar-thumb]:to-neutral-400/40 scrollbar-thumb-gradient-to-b scrollbar-thumb-from-primary scrollbar-thumb-to-primary/40">
-                        <ToggleGroup type="single" orientation="vertical" spacing={3} value={selectedColor} onValueChange={(v) => v && setSelectedColor(v)} className="flex flex-col">
-                            {colorPalette.map((color) => (
-                                <div key={color} className="relative flex items-center">
-                                    {selectedColor === color && <span className="absolute -left-5 text-foreground/70 text-xl leading-none select-none pointer-events-none">▶</span>}
-                                    <ToggleGroupItem key={color} value={color} className="w-6 h-6 rounded cursor-pointer" style={{ backgroundColor: color }} />
-                                </div>
-                            ))}
-                        </ToggleGroup>
-                    </div>
-                    <Separator className="shrink-0" />
-                    <div className="shrink-0 flex justify-center">
-                        <ColorPicker defaultFormat="hex" defaultValue="#f08000" onValueChange={(color) => setCustomColor(color)}>
-                            <div className="flex justify-center">
-                                <ColorPickerTrigger asChild>
-                                    <Plus size={18} className="cursor-pointer w-6 h-6 rounded border" />
-                                </ColorPickerTrigger>
+        <div>
+            <Navbar
+                RootText="PackMC"
+                RootLink="/app"
+                ButtonText="Save File"
+                ButtonAction={saveTexture}
+            />
+            <div className="flex w-full h-[calc(100vh-4rem)]">
+                <div className="flex flex-col w-full">
+                    <div className="flex-1 flex items-center justify-center relative">
+                        <div className="left-5 absolute">
+                            <ToggleGroup className="bg-card/80 border border-sidebar-border/10 p-1 gap-3 flex flex-col" variant="packmc2" type="single" value={selectedTool} onValueChange={(value) => value && setSelectedTool(value)}>
+                                <ToggleGroupItem value="pen" aria-label="Pen Tool">
+                                    <Pen size={20} />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="eraser" aria-label="Eraser Tool">
+                                    <Eraser size={20} />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="fill" aria-label="Fill Tool">
+                                    <PaintBucket size={20} />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="square" aria-label="Square Tool">
+                                    <Square size={20} />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="circle" aria-label="Circle Tool">
+                                    <Circle size={20} />
+                                </ToggleGroupItem>
+                                <ToggleGroupItem value="line" aria-label="Line Tool">
+                                    <Slash size={20} />
+                                </ToggleGroupItem>
+                            </ToggleGroup>
+                            <div className="bg-card/80 border border-sidebar-border/10 p-1 mt-3 flex flex-col">
+                            <Button className="bg-transparent py-5 text-text-muted hover:bg-card hover:text-text-secondary data-[state=on]:rounded-4xl" aria-label="Undo" onClick={undo}>
+                                <Undo size={20} />
+                            </Button>
+                            <Button className="bg-transparent py-5 text-text-muted hover:bg-card hover:text-text-secondary data-[state=on]:rounded-4xl" aria-label="Redo" onClick={redo}>
+                                <Redo size={20} />
+                            </Button>
+                            <Button className="bg-transparent py-5 text-text-muted hover:bg-card hover:text-text-secondary data-[state=on]:rounded-4xl" aria-label="Toggle Background" onClick={() => setShowBackground((prev) => !prev)}>
+                                {showBackground ? <Eye size={20} /> : <EyeOff size={20} />}
+                            </Button>
                             </div>
-                            <ColorPickerContent className="mr-23 top-1/2 transform -translate-y-1/2">
-                                <ColorPickerArea />
-                                <div className="flex items-center gap-2">
+                        </div>
+                        <div className="bg-card-secondary border-card-foreground border-3 box-content mx-auto drop-shadow-[0_0_20px_rgba(204,151,255,0.2)]" style={{ width: gridCols * pixelSize, height: gridRows * pixelSize, transform: `scale(${zoom})`, transformOrigin: 'center' }}>
+                            <canvas
+                                ref={canvasRef}
+                                width={gridCols * pixelSize}
+                                height={gridRows * pixelSize}
+                                onMouseDown={handleMouseDown}
+                                onMouseMove={handleMouseMove}
+                                className="cursor-crosshair"
+                                style={{ display: "block" }}
+                            />
+                        </div>
+                    </div>
+                    <div className="bg-card-secondary w-full mt-auto h-10 items-center flex px-4 gap-8">
+                        <span>POS {mouseX}, {mouseY}</span>
+                        <span>Color: {selectedColor}</span>
+                        {/* right */}
+                        <span>{gridCols}x{gridRows} PX</span>
+                        <span>Zoom {Math.round(zoom * 100)}%</span>
+                    </div>
+                </div>
+                <div className="bg-card-secondary w-1/5 ml-auto p-2 flex flex-col gap-8">
+                    <div className="flex flex-col">
+                        <span>
+                            TEXTURE NAME
+                        </span>
+                        <span>{path.split("/").slice(-1)[0]}</span>
+                    </div>
+                    <div>
+                        <span>SWATCHES</span>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                        {colorPalette.map((color) => (
+                                <button
+                                    key={color}
+                                    className="w-17 h-17 rounded-sm border-2 border-white/10"
+                                    style={{ backgroundColor: color }}
+                                    onClick={() => setSelectedColor(color)}
+                                />
+                            ))}
+                            <ColorPicker value={customColor} onValueChange={setCustomColor}>
+                                <ColorPickerTrigger asChild>
+                                    <button className="w-17 h-17 rounded-sm border-2 border-white/10 flex items-center justify-center bg-card-foreground">
+                                        <Plus size={20} color="#fff" />
+                                    </button>
+                                </ColorPickerTrigger>
+                                <ColorPickerContent>
+                                    <ColorPickerArea />
                                     <ColorPickerEyeDropper />
-                                    <div className="flex flex-1 flex-col gap-2">
-                                        <ColorPickerHueSlider />
-                                        <ColorPickerAlphaSlider />
-                                        </div>
-                                </div>
-                                <div className="flex items-center gap-2">
+                                    <ColorPickerHueSlider />
+                                    <ColorPickerAlphaSlider />
                                     <ColorPickerFormatSelect />
                                     <ColorPickerInput />
-                                </div>
-                                <Button onClick={addColorToPalette} size="sm">Add to palette</Button>
-                            </ColorPickerContent>
-                        </ColorPicker>
+                                    <Button onClick={addColorToPalette} className="w-full mt-2">Add to Palette</Button>
+                                </ColorPickerContent>
+                            </ColorPicker>
+                        </div>
                     </div>
                 </div>
             </div>

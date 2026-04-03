@@ -24,3 +24,13 @@ export interface TimelineProps {
   connectorColor?: TimelineColor;
   className?: string;
 }
+
+export interface TextureCards {
+    name: string;
+    category: string;
+    filename: string;
+    url: string;
+    width: number;
+    height: number;
+    aspect_ratio: string;
+}

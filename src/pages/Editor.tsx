@@ -29,10 +29,14 @@ export default function Editor() {
     const path = location.state?.path || "error/error.png";
     const gridCols = location.state?.width || 16;
     const gridRows = location.state?.height || 16;
+    const originalUrl = location.state?.originalUrl || null;
+
+    const packId = location.state?.packId || "";
+    const storageKey = `packmc_textures_${packId}`;
 
     const savedTexture = useMemo(() =>
-        JSON.parse(localStorage.getItem("packmc_textures") || "{}")[path] ?? null
-    , [path]);
+        JSON.parse(localStorage.getItem(storageKey) || "{}")[path] ?? null
+    , [path, storageKey]);
 
     const [isDrawing, setIsDrawing] = useState(false);
     const [selectedTool, setSelectedTool] = useState<string>("pen");
@@ -111,6 +115,15 @@ export default function Editor() {
 
         // clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (showBackground && originalUrl) {
+            const img = new Image();
+            img.src = originalUrl;
+            ctx.globalAlpha = 0.3;
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, gridCols * pixelSize, gridRows * pixelSize);
+            ctx.globalAlpha = 1.0;
+        }
 
         // draw each pixel
         pixels.forEach((row, y) => {
@@ -447,11 +460,18 @@ export default function Editor() {
         });
 
         const dataUrl = offscreenCanvas.toDataURL("image/png");
-        const existing = JSON.parse(localStorage.getItem("packmc_textures") || "{}");
+        const existing = JSON.parse(localStorage.getItem(storageKey) || "{}");
         existing[path] = dataUrl;
-        localStorage.setItem("packmc_textures", JSON.stringify(existing));
+        localStorage.setItem(storageKey, JSON.stringify(existing));
+        // set edited time for pack
+        const packs = JSON.parse(localStorage.getItem("packmc_packs") || "[]");
+        const packIndex = packs.findIndex((p: any) => p.id === packId);
+        if (packIndex !== -1) {
+            packs[packIndex].edited = Date.now();
+            localStorage.setItem("packmc_packs", JSON.stringify(packs));
+        }
 
-        navigate("/dashboard");
+        navigate("/pack/" + packId);
     }
 
     useEffect(() => {

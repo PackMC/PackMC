@@ -58,12 +58,12 @@ const currentPackName = useMemo(
 useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-    const edited = JSON.parse(localStorage.getItem("packmc_textures") || "{}");
+    const edited = JSON.parse(localStorage.getItem(`packmc_textures_${currentPackId}`) || "{}");
     setEditedTextures(edited);
     } catch {
     setEditedTextures({});
     }
-}, []);
+}, [currentPackId]);
 
 const filteredTextures = useMemo(() => {
     const searchLower = search.trim().toLowerCase();
@@ -124,6 +124,15 @@ useEffect(() => {
     virtualizer.scrollToIndex(0);
     virtualizer.measure();
 }, [cols, filteredTextures.length, virtualizer]);
+
+const refreshEditedTextures = () => {
+    try {
+        const edited = JSON.parse(localStorage.getItem(`packmc_textures_${currentPackId}`) || "{}");
+        setEditedTextures(edited);
+    } catch {
+        setEditedTextures({});
+    }
+};
 
 return (
     <div className="flex h-full flex-row">
@@ -267,7 +276,7 @@ return (
                     }}
                 >
                     {rowTextures.map((texture) => (
-                    <Card key={`${texture.category}/${texture.filename}`} texture={texture} />
+                    <Card key={`${texture.category}/${texture.filename}`} texture={texture} packId={currentPackId} onDelete={refreshEditedTextures} />
                     ))}
                 </div>
                 );

@@ -4,7 +4,6 @@ import Landing from './pages/Landing.tsx'
 import Dashboard from './pages/App.tsx'
 import PackView from './pages/PackView.tsx'
 import Editor from './pages/Editor.tsx'
-import Auth from './pages/Auth.tsx'
 
 function App() {
 
@@ -13,7 +12,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Landing />} />
-          <Route path="auth" element={<Auth />} />
           <Route path='app' element={<Dashboard />} />
           <Route path="pack/:packId" element={<PackView />} />
           <Route path="editor" element={<Editor />} />

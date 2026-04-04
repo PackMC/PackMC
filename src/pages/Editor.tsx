@@ -50,6 +50,7 @@ export default function Editor() {
     const [showBackground, setShowBackground] = useState(true);
     const [mouseX, setMouseX] = useState(0);
     const [mouseY, setMouseY] = useState(0);
+    const [originalImageReady, setOriginalImageReady] = useState(false);
 
     const MAX_WIDTH = 712;
     const MAX_HEIGHT = 712;
@@ -79,6 +80,17 @@ export default function Editor() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const didDrawRef = useRef<boolean>(false);
     const selectedColorRef = useRef(selectedColor);
+    const originalImageRef = useRef<HTMLImageElement | null>(null);
+
+    useEffect(() => {
+        if (!originalUrl) return;
+        const img = new Image();
+        img.onload = () => {
+            originalImageRef.current = img;
+            setOriginalImageReady(true);
+        };
+        img.src = originalUrl;
+    }, [originalUrl]);
 
     // sync color palette with saved palette for pack
     useEffect(() => {
@@ -137,13 +149,13 @@ export default function Editor() {
         // clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (showBackground && originalUrl) {
-            const img = new Image();
-            img.src = originalUrl;
-            ctx.globalAlpha = 0.3;
-            ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(img, 0, 0, gridCols * pixelSize, gridRows * pixelSize);
-            ctx.globalAlpha = 1.0;
+        if (showBackground && originalUrl && originalImageRef.current) {
+            if (showBackground && originalUrl && originalImageRef.current) {
+                ctx.globalAlpha = 0.3;
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(originalImageRef.current, 0, 0, gridCols * pixelSize, gridRows * pixelSize);
+                ctx.globalAlpha = 1;
+            }
         }
 
         // draw each pixel
@@ -223,7 +235,7 @@ export default function Editor() {
                 }
             }
         }
-    }, [pixels, shapeStart, previewEnd, selectedTool, selectedColor, showBackground]);
+    }, [pixels, shapeStart, previewEnd, selectedTool, selectedColor, showBackground, originalImageReady]);
 
     const undo = useCallback(() => {
         if (historyIndex.current > 0) {

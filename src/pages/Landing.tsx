@@ -19,7 +19,7 @@ export default function Landing() {
                 Create Minecraft texture & datapacks in your browser.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6">
-                <Button size="lg" onClick={() => navigate("/app")}>
+                <Button size="lg" className="w-42 h-16 text-2xl" onClick={() => navigate("/app")}>
                     Get started
                 </Button>
             </div>

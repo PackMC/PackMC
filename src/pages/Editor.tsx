@@ -40,9 +40,9 @@ export default function Editor() {
 
     const [isDrawing, setIsDrawing] = useState(false);
     const [selectedTool, setSelectedTool] = useState<string>("pen");
-    const [selectedColor, setSelectedColor] = useState<string>("#f4f4f4");
+    const [selectedColor, setSelectedColor] = useState<string>("#ffffff");
     const [customColor, setCustomColor] = useState<string>("#f08000");
-    const [colorPalette, setColorPalette] = useState<string[]>(["#1a1c2c", "#b13e53", "#ef7d57", "#ffcd75", "#38b764", "#3b5dc9", "#73eff7", "#f4f4f4"]);
+    const [colorPalette, setColorPalette] = useState<string[]>(["#ffffff"]);
     const [shapeStart, setShapeStart] = useState<{ col: number; row: number } | null>(null);
     const [isShapeDragging, setIsShapeDragging] = useState(false);
     const [previewEnd, setPreviewEnd] = useState<{ col: number; row: number } | null>(null);
@@ -63,6 +63,12 @@ export default function Editor() {
             return [...prev, customColor];
         });
         setSelectedColor(customColor);
+        const packs = JSON.parse(localStorage.getItem("packmc_packs") || "[]");
+        const packIndex = packs.findIndex((p: any) => p.id === packId);
+        if (packIndex !== -1) {
+            packs[packIndex].palette = [...(packs[packIndex].palette || []), customColor];
+            localStorage.setItem("packmc_packs", JSON.stringify(packs));
+        }
     }
     
     const initialGrid = useMemo(() => makeEmptyGrid(gridRows, gridCols), [gridRows, gridCols]);
@@ -73,6 +79,21 @@ export default function Editor() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const didDrawRef = useRef<boolean>(false);
     const selectedColorRef = useRef(selectedColor);
+
+    // sync color palette with saved palette for pack
+    useEffect(() => {
+        // safe to local storage
+        try {
+            const packs = JSON.parse(localStorage.getItem("packmc_packs") || "[]");
+            const pack = packs.find((p: any) => p.id === packId);
+            if (pack && pack.palette) {
+                setColorPalette(pack.palette);
+            }
+        } catch (e) {
+            console.error("Failed to load color palette from localStorage", e);
+        }
+    }, [packId]);
+
 
     useEffect(() => {
         selectedColorRef.current = selectedColor;

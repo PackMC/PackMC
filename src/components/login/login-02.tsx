@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/login/components/input";
@@ -35,6 +35,34 @@ export default function Login02() {
         setLoading(false);
   };
 
+  // Github OAuth login
+  const handleGithubLogin = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: window.location.origin + "/auth",
+      },
+    });
+    if (error) {
+      setErrorMessage("Error during GitHub OAuth: " + error.message);
+    }
+    setLoading(false);
+  };
+
+  // Handle OAuth redirect session
+  useEffect(() => {
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        if (error) {
+          console.error("OAuth session error:", error);
+        } else if (session) {
+          // Session is now fully set
+          navigate("/dashboard"); // redirect cleanly without hash
+        }
+      });
+  }, [navigate]);
+  
 
   // OTP Code verification
   const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -140,8 +168,12 @@ export default function Login02() {
               />
               <p className="mt-2 text-xs text-red-300">{errorMessage}</p>
             </div>
-            <Button type="submit" className="mt-4 w-full py-2 font-medium" disabled={loading}>
-              {loading ? "Sending OTP..." : "Sign in"}
+            <Button 
+              type="submit" 
+              className="mt-4 w-full py-2 font-medium" 
+              disabled={loading}
+            >
+                {loading ? "Sending OTP..." : "Sign in"}
             </Button>
           </form>
           <div className="relative my-6">
@@ -158,12 +190,11 @@ export default function Login02() {
           <Button
             variant="outline"
             className="flex w-full items-center justify-center space-x-2 py-2"
-            asChild
+            onClick={handleGithubLogin}
+            disabled={loading}
           >
-            <a href="#">
-              <GithubIcon className="size-5" aria-hidden={true} />
-              <span className="text-sm font-medium">Sign in with Github</span>
-            </a>
+            <GithubIcon className="size-5" aria-hidden={true} />
+            <span className="text-sm font-medium">Sign in with Github</span>
           </Button>
 
           <p className="mt-4 text-xs text-muted-foreground dark:text-muted-foreground">

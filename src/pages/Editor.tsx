@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import Navbar from "@/components/ui/navbar"
-import { Circle, Eraser, Eye, EyeOff, PaintBucket, Pen, Plus, Redo, Slash, Square, Undo } from "lucide-react";
+import { Circle, Eraser, Eye, EyeOff, PaintBucket, Pen, Plus, Redo, Slash, Square, Undo, Upload } from "lucide-react";
 import {
   ColorPicker,
   ColorPickerAlphaSlider,
@@ -51,10 +51,12 @@ export default function Editor() {
     const [mouseX, setMouseX] = useState(0);
     const [mouseY, setMouseY] = useState(0);
     const [originalImageReady, setOriginalImageReady] = useState(false);
+    const [cols, setCols] = useState(gridCols);
+    const [rows, setRows] = useState(gridRows);
 
     const MAX_WIDTH = 712;
     const MAX_HEIGHT = 712;
-    const pixelSize = Math.floor(Math.min(MAX_WIDTH / gridCols, MAX_HEIGHT / gridRows));
+    const pixelSize = Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows));
     
     const historyIndex = useRef<number>(0);
 
@@ -72,7 +74,7 @@ export default function Editor() {
         }
     }
     
-    const initialGrid = useMemo(() => makeEmptyGrid(gridRows, gridCols), [gridRows, gridCols]);
+    const initialGrid = useMemo(() => makeEmptyGrid(rows, cols), [rows, cols]);
     const history = useRef<string[][][]>([initialGrid]);
     const [pixels, setPixels] = useState<string[][]>(initialGrid);
 
@@ -81,6 +83,86 @@ export default function Editor() {
     const didDrawRef = useRef<boolean>(false);
     const selectedColorRef = useRef(selectedColor);
     const originalImageRef = useRef<HTMLImageElement | null>(null);
+    const importInputRef = useRef<HTMLInputElement | null>(null);
+
+    const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const offscreenCanvas = document.createElement("canvas");
+                offscreenCanvas.width = cols;
+                offscreenCanvas.height = rows;
+                const ctx = offscreenCanvas.getContext("2d");
+                if (!ctx) return;
+                ctx.imageSmoothingEnabled = false;
+                ctx.drawImage(img, 0, 0, cols, rows);
+                const imageData = ctx.getImageData(0, 0, cols, rows).data;
+                const newPixels = makeEmptyGrid(rows, cols);
+                for (let i = 0; i < imageData.length; i += 4) {
+                    const r = imageData[i];
+                    const g = imageData[i + 1];
+                    const b = imageData[i + 2];
+                    const a = imageData[i + 3];
+                    const pixelIndex = i / 4;
+                    const row = Math.floor(pixelIndex / cols);
+                    const col = pixelIndex % cols;
+                    newPixels[row][col] = a === 0 ? "transparent" : `rgba(${r},${g},${b},${a / 255})`;
+                }
+                setPixels(newPixels);
+                pixelsRef.current = newPixels;
+                history.current = [newPixels];
+                historyIndex.current = 0;
+            };
+            img.src = e.target?.result as string;
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const resizeGrid = (newRows: number, newCols: number) => {
+        const sourceCanvas = document.createElement("canvas");
+        sourceCanvas.width = cols;
+        sourceCanvas.height = rows;
+        const sourceCtx = sourceCanvas.getContext("2d");
+        if (!sourceCtx) return;
+        pixelsRef.current.forEach((row, y) => {
+            row.forEach((color, x) => {
+                if (color !== "transparent") {
+                    sourceCtx.fillStyle = color;
+                    sourceCtx.fillRect(x, y, 1, 1);
+                }
+            });
+        });
+
+        const offscreenCanvas = document.createElement("canvas");
+        offscreenCanvas.width = newCols;
+        offscreenCanvas.height = newRows;
+        const ctx = offscreenCanvas.getContext("2d");
+        if (!ctx) return;
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(sourceCanvas, 0, 0, cols, rows, 0, 0, newCols, newRows);
+        const imageData = ctx.getImageData(0, 0, newCols, newRows).data;
+        const newPixels = makeEmptyGrid(newRows, newCols);
+        for (let i = 0; i < imageData.length; i += 4) {
+            const r = imageData[i];
+            const g = imageData[i + 1];
+            const b = imageData[i + 2];
+            const a = imageData[i + 3];
+            const pixelIndex = i / 4;
+            const row = Math.floor(pixelIndex / newCols);
+            const col = pixelIndex % newCols;
+            newPixels[row][col] = a === 0 ? "transparent" : `rgba(${r},${g},${b},${a / 255})`;
+        }
+        setPixels(newPixels);
+        pixelsRef.current = newPixels;
+        history.current = [newPixels];
+        historyIndex.current = 0;
+        setCols(newCols);
+        setRows(newRows);
+        setZoom(1);
+    };
 
     useEffect(() => {
         if (!originalUrl) return;
@@ -153,7 +235,7 @@ export default function Editor() {
             if (showBackground && originalUrl && originalImageRef.current) {
                 ctx.globalAlpha = 0.3;
                 ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(originalImageRef.current, 0, 0, gridCols * pixelSize, gridRows * pixelSize);
+                ctx.drawImage(originalImageRef.current, 0, 0, cols * pixelSize, rows * pixelSize);
                 ctx.globalAlpha = 1;
             }
         }
@@ -195,8 +277,8 @@ export default function Editor() {
                     Math.pow((previewEnd.row - centerRow), 2)
                 );
 
-                for (let x = 0; x < gridCols; x++) {
-                    for (let y = 0; y < gridRows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    for (let y = 0; y < rows; y++) {
                         const dist = Math.sqrt(Math.pow(x - centerCol, 2) + Math.pow(y - centerRow, 2));
                         if (Math.abs(dist - radius) < 0.5) { // simple circle approximation
                             ctx.fillStyle = selectedColorRef.current + "88"; // semi-transparent for preview
@@ -336,7 +418,7 @@ export default function Editor() {
         };
         img.src = savedTexture;
 
-    }, [savedTexture, gridCols, gridRows]);
+    }, [savedTexture, cols, rows]);
 
     const getCanvasCoordinates = (event: React.MouseEvent<HTMLCanvasElement>): { col: number; row: number } | null => {
             const canvas = canvasRef.current;
@@ -344,8 +426,8 @@ export default function Editor() {
             const rect = canvas.getBoundingClientRect();
             const x = (event.clientX - rect.left) / zoom;
             const y = (event.clientY - rect.top) / zoom;
-            const clampedCol = Math.max(0, Math.min(gridCols - 1, Math.floor(x / pixelSize)));
-            const clampedRow = Math.max(0, Math.min(gridRows - 1, Math.floor(y / pixelSize)));
+            const clampedCol = Math.max(0, Math.min(cols - 1, Math.floor(x / pixelSize)));
+            const clampedRow = Math.max(0, Math.min(rows - 1, Math.floor(y / pixelSize)));
             return { col: clampedCol, row: clampedRow };
     }
 
@@ -374,8 +456,8 @@ export default function Editor() {
         const centerCol = start.col;
         const radius = Math.sqrt(Math.pow((end.col) - centerCol, 2) + Math.pow((end.row) - centerRow, 2));
         const newPixels = currentPixels.map((r) => r.slice());
-        for (let r = 0; r < gridRows; r++) {
-            for (let c = 0; c < gridCols; c++) {
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
                 const dist = Math.sqrt(Math.pow(c - centerCol, 2) + Math.pow(r - centerRow, 2));
                 if (Math.abs(dist - radius) < 0.5) { // simple circle approximation
                     newPixels[r][c] = selectedColorRef.current; // change to selected color on click
@@ -428,7 +510,7 @@ export default function Editor() {
         const stack = [{ col: startCol, row: startRow }];
         while (stack.length > 0) {
             const { col, row } = stack.pop()!;
-            if (col < 0 || col >= gridCols || row < 0 || row >= gridRows) continue;
+            if (col < 0 || col >= cols || row < 0 || row >= rows) continue;
             if (newPixels[row][col] !== targetColor) continue;
             newPixels[row][col] = replacementColor;
             stack.push({ col: col + 1, row });
@@ -478,8 +560,8 @@ export default function Editor() {
 
         // offscreen canvas to resize to original dimensions, no gridlines
         const offscreenCanvas = document.createElement("canvas");
-        offscreenCanvas.width = gridCols;
-        offscreenCanvas.height = gridRows;
+        offscreenCanvas.width = cols;
+        offscreenCanvas.height = rows;
         const ctx = offscreenCanvas.getContext("2d");
         if (!ctx) return;
 
@@ -565,11 +647,43 @@ export default function Editor() {
                             </Button>
                             </div>
                         </div>
-                        <div className="bg-card-secondary border-card-foreground border-3 box-content mx-auto drop-shadow-[0_0_20px_rgba(204,151,255,0.2)]" style={{ width: gridCols * pixelSize, height: gridRows * pixelSize, transform: `scale(${zoom})`, transformOrigin: 'center' }}>
+                        <div className="right-2 top-2 absolute flex flex-col gap-2">
+                            <input
+                                ref={importInputRef}
+                                type="file"
+                                accept="image/png,image/jpeg"
+                                style={{ display: "none" }}
+                                onChange={handleImport}
+                            />
+                            <Button onClick={() => {
+                                const newCols = prompt("Enter number of columns:", gridCols.toString());
+                                const newRows = prompt("Enter number of rows:", gridRows.toString());
+                                if (newCols && newRows) {
+                                    const parsedCols = parseInt(newCols);
+                                    const parsedRows = parseInt(newRows);
+                                    if (!isNaN(parsedCols) && !isNaN(parsedRows) && parsedCols > 0 && parsedRows > 0) {
+                                        resizeGrid(parsedRows, parsedCols);
+                                    } else {
+                                        alert("Invalid input. Please enter positive integers for columns and rows.");
+                                    }
+                                }
+                            }}>
+
+                                Change Resolution
+                            </Button>
+                            <Button onClick={() => {
+                                if (importInputRef.current) {
+                                    importInputRef.current.click();
+                                }
+                            }}>
+                                <Upload size={20} /> Upload
+                            </Button>
+                        </div>
+                        <div className="bg-card-secondary border-card-foreground border-3 box-content mx-auto drop-shadow-[0_0_20px_rgba(204,151,255,0.2)]" style={{ width: cols * pixelSize, height: rows * pixelSize, transform: `scale(${zoom})`, transformOrigin: 'center' }}>
                             <canvas
                                 ref={canvasRef}
-                                width={gridCols * pixelSize}
-                                height={gridRows * pixelSize}
+                                width={cols * pixelSize}
+                                height={rows * pixelSize}
                                 onMouseDown={handleMouseDown}
                                 onMouseMove={handleMouseMove}
                                 className="cursor-crosshair"
@@ -581,7 +695,7 @@ export default function Editor() {
                         <span>POS {mouseX}, {mouseY}</span>
                         <span>Color: {selectedColor}</span>
                         {/* right */}
-                        <span>{gridCols}x{gridRows} PX</span>
+                        <span>{cols}x{rows} PX</span>
                         <span>Zoom {Math.round(zoom * 100)}%</span>
                     </div>
                 </div>

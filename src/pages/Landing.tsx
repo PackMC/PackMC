@@ -25,7 +25,7 @@ export default function Landing() {
             </div>
             <div className="gap-16 mt-36 max-w-400 w-full flex justify-items-center">
                 <Cardaevr
-                    className="bg-linear-to-tr from-primary/10 to-primary/7"
+                    className="bg-card"
                     icon={<LayersIcon size={32} />}
                     title="Instant Texture Creation"
                     subtitle="Design Minecraft textures fast"
@@ -35,11 +35,11 @@ export default function Landing() {
                     size="xxl"
                     >
                     <p className="text-sm text-muted-foreground">
-                        Create custom Minecraft textures right in your browser — no downloads, no setup. Start designing in seconds!
+                        Create custom Minecraft textures right in your browser. No downloads, no setup. Start designing in seconds!
                     </p>
                 </Cardaevr>
                 <Cardaevr
-                    className="bg-linear-to-tr from-primary/5 to-secondary/6"
+                    className="bg-card"
                     icon={<DownloadIcon size={32} />}
                     title="One-Click Game Ready"
                     subtitle="Download and play instantly"
@@ -49,7 +49,7 @@ export default function Landing() {
                     size="xxl"
                     >
                     <p className="text-sm text-muted-foreground">
-                        Save your creations and load them into Minecraft in just one click. No hassle, no extra steps — just play!
+                        Save your creations and load them into Minecraft. No hassle, no extra steps, just play!
                     </p>
                 </Cardaevr>
             </div>

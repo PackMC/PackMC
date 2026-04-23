@@ -46,7 +46,6 @@ export default function Editor() {
     const [shapeStart, setShapeStart] = useState<{ col: number; row: number } | null>(null);
     const [isShapeDragging, setIsShapeDragging] = useState(false);
     const [previewEnd, setPreviewEnd] = useState<{ col: number; row: number } | null>(null);
-    const [zoom, setZoom] = useState(1);
     const [showBackground, setShowBackground] = useState(true);
     const [mouseX, setMouseX] = useState(0);
     const [mouseY, setMouseY] = useState(0);
@@ -56,8 +55,14 @@ export default function Editor() {
 
     const MAX_WIDTH = 712;
     const MAX_HEIGHT = 712;
-    const pixelSize = Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows));
-    
+    const pixelSize = Math.max(1, Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows)));
+    const initialZoom = Math.min(1, MAX_WIDTH / (cols * pixelSize), MAX_HEIGHT / (rows * pixelSize));
+
+    const [zoom, setZoom] = useState(() => {
+        const ps = Math.max(1, Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows)));
+        return Math.min(1, MAX_WIDTH / (cols * ps), MAX_HEIGHT / (rows * ps));
+    });
+
     const historyIndex = useRef<number>(0);
 
     const addColorToPalette = () => {
@@ -161,7 +166,8 @@ export default function Editor() {
         historyIndex.current = 0;
         setCols(newCols);
         setRows(newRows);
-        setZoom(1);
+        const ps = Math.max(1, Math.floor(Math.min(MAX_WIDTH / newCols, MAX_HEIGHT / newRows)));
+        setZoom(Math.min(1, MAX_WIDTH / (newCols * ps), MAX_HEIGHT / (newRows * ps)));
     };
 
     useEffect(() => {
@@ -247,8 +253,10 @@ export default function Editor() {
                     ctx.fillStyle = color;
                     ctx.fillRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
                 }
-                ctx.strokeStyle = "#333"; // grid lines
-                ctx.strokeRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize)
+                if (pixelSize >= 3) {
+                    ctx.strokeStyle = "#333"; // grid lines
+                    ctx.strokeRect(x * pixelSize, y * pixelSize, pixelSize, pixelSize);
+                }
             });
         });
 
@@ -594,7 +602,7 @@ export default function Editor() {
             if (event.ctrlKey) {
                 event.preventDefault();
                 const zoomAmount = -event.deltaY * 0.001;
-                setZoom((prevZoom) => Math.min(1.2, Math.max(0.5, prevZoom + zoomAmount)));
+                setZoom((prevZoom) => Math.min(115.0, Math.max(0.5, prevZoom + zoomAmount)));
             }
         };
         window.addEventListener("wheel", handleWheel, { passive: false });  

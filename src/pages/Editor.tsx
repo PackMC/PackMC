@@ -56,7 +56,6 @@ export default function Editor() {
     const MAX_WIDTH = 712;
     const MAX_HEIGHT = 712;
     const pixelSize = Math.max(1, Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows)));
-    const initialZoom = Math.min(1, MAX_WIDTH / (cols * pixelSize), MAX_HEIGHT / (rows * pixelSize));
 
     const [zoom, setZoom] = useState(() => {
         const ps = Math.max(1, Math.floor(Math.min(MAX_WIDTH / cols, MAX_HEIGHT / rows)));

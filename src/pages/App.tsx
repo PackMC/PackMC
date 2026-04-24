@@ -23,6 +23,11 @@ export default function App() {
     useEffect(() => {
         const stored = JSON.parse(localStorage.getItem("packmc_packs") || "[]");
         setPacks(stored);
+        const counts = stored.map((pack: any) => {
+            const textures = JSON.parse(localStorage.getItem(`packmc_textures_${pack.id}`) || "{}");
+            return Object.keys(textures).length;
+        });
+        setPacks((prev) => prev.map((pack, index) => ({ ...pack, assets: counts[index] })));
     }, []);
 
     function createPack() {
